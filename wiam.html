@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 Happy Birthday, My Love 💕</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-pink: #ff6b9d;
+            --secondary-purple: #c44569;
+            --soft-pink: #ffb3d9;
+            --dark-purple: #2c1f47;
+            --light-bg: #faf8ff;
+            --white: #ffffff;
+            --accent-gold: #ffd700;
+            --soft-purple: #e8d4f8;
+            --hover-pink: #ff5588;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        @keyframes slideUp { from { opacity:0; transform:translateY(30px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-30px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-20px) } }
+        @keyframes pulse { 0%,100% { transform:scale(1) } 50% { transform:scale(1.1) } }
+        @keyframes heartFloat {
+            0% { opacity:1; transform:translateY(0) translateX(0) rotate(0deg) }
+            100% { opacity:0; transform:translateY(-100vh) translateX(100px) rotate(360deg) }
+        }
+        @keyframes scaleIn { from { transform:scale(0); opacity:0 } to { transform:scale(1); opacity:1 } }
+        @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0 } }
+        @keyframes glow { 0%,100% { box-shadow:inset 0 0 10px rgba(255,255,255,0.3) } 50% { box-shadow:inset 0 0 15px rgba(255,255,255,0.5) } }
+        @keyframes heartBurst {
+            0% { transform:scale(0) rotate(0deg); opacity:1 }
+            60% { transform:scale(1.4) rotate(var(--rot)); opacity:1 }
+            100% { transform:scale(0.8) rotate(var(--rot)) translate(var(--tx), var(--ty)); opacity:0 }
+        }
+        @keyframes loadBarFill {
+            from { width:0% }
+            to { width:100% }
+        }
+        @keyframes transitionFadeIn { from { opacity:0 } to { opacity:1 } }
+
+        .timeline-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        #musicToggle {
+            position: fixed;
+            top: 16px; right: 16px;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            border: 2px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+        #musicToggle:hover {
+            background: rgba(255,255,255,0.4);
+            transform: scale(1.1);
+        }
+        #musicToggle.muted {
+            background: rgba(0,0,0,0.2);
+            border-color: rgba(255,255,255,0.3);
+            opacity: 0.7;
+        }
+        #musicToggle .music-icon { pointer-events: none; }
+
+        #introScreen {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .intro-container { text-align:center; z-index:10; animation:slideUp 1s ease-out; }
+        .intro-title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 2px 2px 20px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+        .intro-message {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: rgba(255,255,255,0.95);
+            margin-bottom: 20px;
+            max-width: 600px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+        .intro-emoji { font-size:4rem; margin:20px 0; animation:float 3s ease-in-out infinite; }
+
+        .name-input-group {
+            margin: 20px auto;
+            max-width: 320px;
+        }
+        .name-input-group label {
+            display: block;
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .name-input-group input {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        .name-input-group input::placeholder { color: rgba(255,255,255,0.6); }
+        .name-input-group input:focus {
+            border-color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .start-btn {
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--accent-gold), #ffed4e);
+            color: #764ba2;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        .start-btn:hover { transform:scale(1.08) translateY(-3px); box-shadow:0 15px 40px rgba(255,215,0,0.5); }
+        .start-btn:active { transform:scale(0.98); }
+
+        .exit-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px auto;
+            display: block;
+        }
+        .exit-btn:hover { transform:scale(1.05) translateY(-2px); }
+
+        .floating-hearts {
+            position: fixed; top:0; left:0;
+            width:100%; height:100%;
+            pointer-events:none; z-index:1;
+        }
+        .heart {
+            position:absolute;
+            font-size:2rem;
+            animation: heartFloat linear forwards;
+            pointer-events:none;
+        }
+
+        #questionScreen {
+            background: linear-gradient(135deg, #faf8ff 0%, #fff5f8 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .question-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 30px;
+            padding: clamp(20px, 5vw, 50px);
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: slideUp 0.6s ease-out;
+            border: 2px solid rgba(255,107,157,0.2);
+        }
+        .progress-bar-container { margin-bottom:30px; width:100%; }
+        .progress-label {
+            font-size:0.9rem; color:var(--secondary-purple);
+            font-weight:600; margin-bottom:10px;
+            display:flex; justify-content:space-between;
+        }
+        .progress-bar { width:100%; height:8px; background:rgba(200,69,105,0.2); border-radius:10px; overflow:hidden; }
+        .progress-fill { height:100%; background:linear-gradient(90deg,var(--primary-pink),var(--secondary-purple)); transition:width 0.5s ease; border-radius:10px; }
+
+        .question-text {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: var(--dark-purple);
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .question-emoji { display:inline-block; margin-right:10px; animation:pulse 2s ease-in-out infinite; }
+
+        .answer-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .answer-btn {
+            padding: 14px 16px;
+            min-height: 56px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid var(--primary-pink);
+            border-radius: 16px;
+            background: white;
+            color: var(--primary-pink);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(255,107,157,0.2);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .answer-btn:hover { background:var(--primary-pink); color:white; transform:translateY(-3px); box-shadow:0 10px 25px rgba(255,107,157,0.4); }
+        .answer-btn.correct {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border-color: #22c55e;
+            color: white;
+            animation: scaleIn 0.5s ease;
+        }
+        .answer-btn.wrong-flash {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            border-color: #ff6b6b;
+            color: white;
+        }
+
+        .feedback-message {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            min-height: 32px;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            padding: 6px 0;
+        }
+        .feedback-message.correct-fb { color: #16a34a; }
+        .feedback-message.wrong-fb { color: #dc2626; }
+
+        .warning-message {
+            text-align:center; margin-top:14px; font-size:1.05rem;
+            color:#ff6b6b; font-weight:600; animation:slideDown 0.4s ease;
+        }
+        .system-message {
+            text-align:center; font-size:0.95rem; color:var(--secondary-purple);
+            font-style:italic; margin-top:14px; opacity:0.8;
+        }
+        .love-meter-container { margin:20px 0; text-align:center; }
+        .love-meter-label { font-size:1.1rem; color:var(--secondary-purple); font-weight:600; margin-bottom:8px; }
+        .love-meter { height:18px; background:rgba(200,69,105,0.2); border-radius:10px; overflow:hidden; position:relative; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+        .love-meter-fill { height:100%; background:linear-gradient(90deg,#ff6b9d,#c44569); width:0%; transition:width 0.5s ease; border-radius:10px; animation:glow 1s ease infinite; }
+        .love-meter-text { margin-top:8px; font-size:0.95rem; color:#666; font-weight:500; }
+
+        #transitionScreen {
+            background: linear-gradient(135deg, #2c1f47 0%, #764ba2 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .transition-inner { text-align:center; z-index:10; }
+        .transition-title { font-size:clamp(1.8rem,6vw,3rem); color:#fff; font-weight:700; margin-bottom:16px; text-shadow:2px 2px 20px rgba(255,107,157,0.6); }
+        .transition-sub { font-size:1.1rem; color:rgba(255,255,255,0.75); margin-bottom:36px; }
+        .transition-hearts { display:flex; justify-content:center; gap:12px; margin-bottom:36px; font-size:2.5rem; }
+        .transition-hearts span { animation: pulse 1s ease-in-out infinite; }
+        .transition-hearts span:nth-child(2) { animation-delay:0.2s; }
+        .transition-hearts span:nth-child(3) { animation-delay:0.4s; }
+        .transition-bar-wrap { width:280px; height:10px; background:rgba(255,255,255,0.2); border-radius:10px; overflow:hidden; margin:0 auto; }
+        .transition-bar-fill { height:100%; background:linear-gradient(90deg,#ff6b9d,var(--accent-gold)); border-radius:10px; animation:loadBarFill 2.4s ease-out forwards; }
+        .transition-bar-label { margin-top:10px; font-size:0.9rem; color:rgba(255,255,255,0.6); letter-spacing:1px; }
+
+        #badgesScreen {
+            background: linear-gradient(135deg, #faf8ff 0%, #fff5f8 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .emotional-container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255,255,255,0.98);
+            border-radius: 30px;
+            padding: clamp(20px, 6vw, 50px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.1);
+            animation: slideUp 1s ease-out;
+            border: 3px solid rgba(255,107,157,0.15);
+        }
+        .emotional-title { font-size:clamp(1.8rem,5vw,3rem); color:var(--secondary-purple); text-align:center; margin-bottom:30px; font-weight:700; animation:slideDown 0.8s ease-out; }
+        .badges-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:16px; margin:30px 0; text-align:center; }
+        .badge { padding:18px; border-radius:14px; background:linear-gradient(135deg,rgba(255,107,157,0.08),rgba(196,69,105,0.08)); border:2px dashed var(--primary-pink); cursor:pointer; transition:all 0.3s ease; position:relative; }
+        .badge.unlocked { background:linear-gradient(135deg,rgba(255,107,157,0.25),rgba(196,69,105,0.25)); border:2px solid var(--primary-pink); box-shadow:0 0 18px rgba(255,107,157,0.25); }
+        .badge-emoji { font-size:2.2rem; margin-bottom:8px; display:block; }
+        .badge-name { font-weight:600; color:var(--secondary-purple); font-size:0.85rem; margin-bottom:4px; }
+        .badge-description { font-size:0.75rem; color:#999; }
+        .badge-lock { position:absolute; top:5px; right:5px; font-size:1rem; }
+
+        #emotionalScreen {
+            background: linear-gradient(135deg, #faf8ff 0%, #fff5f8 50%, #f8e8f5 100%);
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px;
+        }
+        .emotional-message { font-size:clamp(1rem,2vw,1.3rem); color:#444; line-height:2; text-align:center; margin-bottom:24px; font-weight:300; letter-spacing:0.3px; }
+        .message-line { margin:18px 0; }
+        .highlight { color:var(--primary-pink); font-weight:600; }
+        .emotional-emoji { font-size:2.5rem; display:block; margin:16px 0; animation:float 3s ease-in-out infinite; }
+        .section-divider { height:3px; background:linear-gradient(90deg,transparent,var(--primary-pink),transparent); margin:36px 0; }
+        .love-counter { text-align:center; margin:24px 0; padding:18px; background:linear-gradient(135deg,rgba(255,107,157,0.08),rgba(196,69,105,0.08)); border-radius:14px; border:2px solid rgba(255,107,157,0.25); }
+        .counter-label { font-size:0.9rem; color:var(--secondary-purple); font-weight:600; margin-bottom:8px; }
+        .counter-value { font-size:1.8rem; font-weight:700; color:var(--primary-pink); animation:pulse 2s ease-in-out infinite; }
+
+        .timeline-container { margin:40px 0; position:relative; }
+        .timeline-title { font-size:1.8rem; color:var(--secondary-purple); text-align:center; margin-bottom:36px; font-weight:700; }
+        .timeline { position:relative; padding:20px 0; }
+        .timeline::before { content:''; position:absolute; left:50%; transform:translateX(-50%); width:4px; height:100%; background:linear-gradient(180deg,var(--primary-pink),var(--secondary-purple)); }
+        .timeline-item { margin-bottom:44px; position:relative; }
+        .timeline-item:nth-child(odd) { margin-left:0; margin-right:52%; text-align:right; }
+        .timeline-item:nth-child(even) { margin-left:52%; margin-right:0; text-align:left; }
+        .timeline-dot { position:absolute; width:20px; height:20px; background:white; border:4px solid var(--primary-pink); border-radius:50%; left:50%; transform:translateX(-50%); top:10px; }
+        .timeline-content { background:rgba(255,255,255,0.85); padding:18px; border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+        .timeline-date { font-weight:700; color:var(--primary-pink); font-size:1rem; margin-bottom:4px; }
+        .timeline-text { color:#555; line-height:1.6; font-size:0.95rem; }
+
+        #creditsScreen {
+            background: linear-gradient(135deg, #2c1f47 0%, #1a0f2e 100%);
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+        .credits-content { max-width:800px; text-align:center; color:white; font-size:1.2rem; line-height:2.5; animation:slideUp 1s ease-out; }
+        .credits-title { font-size:2.5rem; font-weight:700; margin:60px 0 40px; text-shadow:2px 2px 20px rgba(255,107,157,0.6); color:var(--accent-gold); }
+        .credits-section { margin:50px 0; }
+        .credits-label { font-size:1.2rem; font-weight:600; color:var(--primary-pink); margin-bottom:12px; }
+        .credits-text { font-size:1.2rem; color:rgba(255,255,255,0.9); font-style:italic; }
+        .credits-ending { margin:80px 0 50px; font-size:1.8rem; font-weight:700; color:var(--accent-gold); text-shadow:2px 2px 20px rgba(255,107,157,0.6); }
+        .credits-button-group { display:flex; gap:14px; justify-content:center; margin-top:30px; flex-wrap:wrap; }
+        .credits-btn { padding:12px 28px; font-size:1rem; font-weight:600; background:var(--accent-gold); color:var(--dark-purple); border:none; border-radius:25px; cursor:pointer; transition:all 0.3s ease; }
+        .credits-btn:hover { transform:scale(1.1); box-shadow:0 10px 30px rgba(255,215,0,0.5); }
+
+        .celebrity-modal, .sharing-modal, .secret-modal {
+            display:none; position:fixed; top:0; left:0;
+            width:100%; height:100%;
+            background:rgba(0,0,0,0.75);
+            z-index:350;
+            justify-content:center; align-items:center; padding:20px;
+        }
+        .celebrity-modal.active, .sharing-modal.active, .secret-modal.active { display:flex; animation:fadeIn 0.4s ease-out; }
+        .celebrity-content { background:linear-gradient(135deg,#ff6b9d,#c44569); border-radius:20px; padding:36px; max-width:680px; max-height:80vh; overflow-y:auto; text-align:center; color:white; animation:slideUp 0.4s ease-out; box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+        .celebrity-title { font-size:1.7rem; font-weight:700; margin-bottom:18px; }
+        .celebrity-item { margin:16px 0; padding:14px; background:rgba(255,255,255,0.12); border-radius:10px; font-size:0.95rem; line-height:1.6; }
+        .celebrity-name { font-weight:700; margin-bottom:6px; }
+        .celebrity-close { margin-top:18px; padding:12px 36px; background:white; color:#ff6b9d; border:none; border-radius:20px; font-weight:700; font-size:1rem; cursor:pointer; transition:all 0.3s ease; }
+        .celebrity-close:hover { transform:scale(1.06); }
+
+        .sharing-content { background:white; border-radius:20px; padding:36px; max-width:480px; text-align:center; animation:slideUp 0.4s ease-out; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .sharing-title { font-size:1.7rem; color:var(--secondary-purple); font-weight:700; margin-bottom:18px; }
+        .sharing-buttons { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+        .share-btn { padding:12px 16px; border:2px solid var(--primary-pink); background:white; color:var(--primary-pink); border-radius:10px; font-weight:600; cursor:pointer; transition:all 0.3s ease; }
+        .share-btn:hover { background:var(--primary-pink); color:white; transform:translateY(-2px); }
+        .close-sharing { margin-top:14px; padding:10px 28px; background:#999; color:white; border:none; border-radius:20px; cursor:pointer; transition:all 0.3s ease; }
+        .close-sharing:hover { background:#777; }
+
+        .secret-content { background:linear-gradient(135deg,#ff6b9d,#c44569); border-radius:20px; padding:36px; max-width:560px; text-align:center; color:white; animation:slideUp 0.4s ease-out; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .secret-title { font-size:1.8rem; font-weight:700; margin-bottom:18px; }
+        .secret-message { font-size:1.1rem; line-height:1.8; margin-bottom:24px; font-weight:300; }
+        .secret-close-btn { padding:12px 28px; font-size:1rem; font-weight:600; background:rgba(255,255,255,0.9); color:#ff6b9d; border:none; border-radius:25px; cursor:pointer; transition:all 0.3s ease; }
+        .secret-close-btn:hover { background:white; transform:translateY(-2px); }
+
+        .lightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:300; justify-content:center; align-items:center; padding:20px; }
+        .lightbox.active { display:flex; animation:fadeIn 0.3s ease-out; }
+        .lightbox-content { max-width:90vw; max-height:90vh; background:white; border-radius:20px; padding:28px; text-align:center; animation:scaleIn 0.3s ease-out; position:relative; }
+        .lightbox-emoji { font-size:5rem; margin:16px 0; }
+        .lightbox-text { font-size:1.2rem; color:var(--dark-purple); font-weight:600; margin-bottom:16px; }
+        .lightbox-close { position:absolute; top:16px; right:16px; font-size:1.8rem; cursor:pointer; background:none; border:none; color:#999; transition:color 0.3s ease; }
+        .lightbox-close:hover { color:var(--primary-pink); }
+
+        .secret-button { position:fixed; bottom:20px; right:20px; width:48px; height:48px; border-radius:50%; background:rgba(255,107,157,0.55); border:2px solid rgba(255,107,157,1); cursor:pointer; font-size:1.4rem; display:flex; justify-content:center; align-items:center; transition:all 0.3s ease; z-index:50; }
+        .secret-button:hover { background:rgba(255,107,157,1); transform:scale(1.2); }
+
+        .sparkle { position:fixed; pointer-events:none; font-size:1.4rem; animation:sparkleFloat 2s ease-out forwards; }
+        @keyframes sparkleFloat { 0% { opacity:1; transform:translate(0,0) scale(1) } 100% { opacity:0; transform:translate(var(--sx),var(--sy)) scale(0) } }
+        .rose-petal { position:fixed; pointer-events:none; animation:petalFall 8s linear forwards; font-size:1.8rem; }
+        @keyframes petalFall { to { transform:translateY(100vh) rotateZ(360deg); opacity:0 } }
+        .heart-confetti { position:fixed; pointer-events:none; }
+
+        ::-webkit-scrollbar { width:8px; }
+        ::-webkit-scrollbar-track { background:rgba(255,107,157,0.08); }
+        ::-webkit-scrollbar-thumb { background:linear-gradient(180deg,var(--primary-pink),var(--secondary-purple)); border-radius:5px; }
+        ::selection { background:var(--primary-pink); color:white; }
+
+        @media (max-width: 768px) {
+            .timeline::before { left:28px; }
+            .timeline-item:nth-child(odd),
+            .timeline-item:nth-child(even) { margin-left:90px; margin-right:0; text-align:left; }
+            .timeline-dot { left:28px; }
+            .answer-buttons { grid-template-columns:1fr; }
+            .sharing-buttons { grid-template-columns:1fr; }
+        }
+        @media (max-width: 480px) {
+            .credits-title { font-size:1.8rem; }
+            .emotional-title { font-size:1.6rem; }
+            .question-text { font-size:1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<button id="musicToggle" onclick="toggleMusic()" title="Toggle music">
+    <span class="music-icon" id="musicIcon">🎵</span>
+</button>
+
+<div id="introScreen" class="screen active">
+    <div class="floating-hearts" id="floatingHeartsIntro"></div>
+    <div class="intro-container">
+        <div class="intro-emoji">💕</div>
+        <h1 class="intro-title" id="introTitle">Happy Birthday hbiba ❤️</h1>
+        <p class="intro-message">I made something special just for you 🎉</p>
+
+        <div class="name-input-group">
+            <label for="partnerNameInput">Her name 💝</label>
+            <input type="text" id="partnerNameInput" placeholder="e.g. Wiam" maxlength="30" oninput="onNameInput(this.value)" />
+        </div>
+
+        <button class="start-btn" onclick="startGame()">Let's Begin</button>
+        <div style="margin-top:28px; text-align:center; font-size:0.9rem; color:rgba(255,255,255,0.55); font-style:italic;">✨ A7777777 3liiiik ✨</div>
+    </div>
+</div>
+
+<div id="questionScreen" class="screen">
+    <div class="floating-hearts" id="floatingHeartsQuestions"></div>
+    <div class="question-container">
+        <div class="love-meter-container">
+            <div class="love-meter-label">💕 Love Meter</div>
+            <div class="love-meter"><div class="love-meter-fill" id="loveMeter"></div></div>
+            <div class="love-meter-text"><span id="scoreText">0</span> / <span id="totalScoreText">10</span> correct</div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-label">
+                <span>Question <span id="currentQuestion">1</span></span>
+                <span id="totalQuestions">10</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="question-text">
+            <span class="question-emoji" id="questionEmoji">❓</span>
+            <span id="questionContent">Loading...</span>
+        </div>
+        <div class="answer-buttons" id="answersContainer"></div>
+        <div class="feedback-message" id="feedbackMessage"></div>
+        <div class="warning-message" id="warningMessage" style="display:none;"></div>
+        <div class="system-message" id="systemMessage" style="display:none;"></div>
+        <button class="exit-btn" onclick="goBack()">← Exit Game</button>
+    </div>
+</div>
+
+<div id="transitionScreen" class="screen">
+    <div class="transition-inner">
+        <div class="transition-hearts">
+            <span>💕</span><span>❤️</span><span>💖</span>
+        </div>
+        <div class="transition-title" id="transitionTitle">Results loading...</div>
+        <div class="transition-sub" id="transitionSub">Counting all the love...</div>
+        <div class="transition-bar-wrap">
+            <div class="transition-bar-fill" id="transitionBar"></div>
+        </div>
+        <div class="transition-bar-label">CALCULATING LOVE SCORE...</div>
+    </div>
+</div>
+
+<div id="badgesScreen" class="screen">
+    <div class="floating-hearts" id="floatingHeartsBadges"></div>
+    <div class="emotional-container">
+        <h1 class="emotional-title">🏆 Achievements Unlocked!</h1>
+        <div style="text-align:center; margin:24px 0;">
+            <div style="font-size:3rem; margin-bottom:16px;"><span id="finalScoreEmoji">❤️</span></div>
+            <div style="font-size:1.8rem; color:var(--primary-pink); font-weight:700; margin-bottom:8px;">Score: <span id="finalScore">0</span> / 10</div>
+            <div style="font-size:1.2rem; color:var(--secondary-purple); font-weight:600;"><span id="scoreMessage">Loading...</span></div>
+        </div>
+        <div class="badges-container" id="badgesContainer"></div>
+        <button class="start-btn" style="margin-top:24px; width:auto;" onclick="goToEmotionalScreen()">Continue to Message 💌</button>
+        <button class="exit-btn" onclick="goBack()">← Exit Game</button>
+    </div>
+</div>
+
+<div id="emotionalScreen" class="screen">
+    <div class="floating-hearts" id="floatingHeartsEmotional"></div>
+    <div class="emotional-container">
+        <h1 class="emotional-title">💕 A Message from My Heart 💕</h1>
+        <div class="love-counter">
+            <div class="counter-label">💑 Together for:</div>
+            <div class="counter-value" id="daysCounter">Forever</div>
+        </div>
+        <div class="emotional-message">
+            <div class="message-line">Happy Birthday to the <span class="highlight">most beautiful soul</span> I know, <strong id="finalWiam">Wiam</strong>.</div>
+            <div class="message-line">Every single day with you feels like a gift I never expected to receive. You've brought so much light, laughter, and love into my life.</div>
+            <span class="emotional-emoji">✨</span>
+            <div class="message-line">In every lifetime, in every universe, in every possibility... <span class="highlight">I'd choose you.</span></div>
+            <div class="message-line">You are my peace. You are my home. You are my favorite person.</div>
+            <span class="emotional-emoji">💞</span>
+            <div class="message-line">Your smile makes everything better. Your laugh is my favorite sound. Your presence is my comfort. Your love is my strength.</div>
+            <div class="message-line">I love the way you light up when you talk about things you care about. I love your kindness, your wisdom, your wild sense of humor, and your beautiful heart.</div>
+            <span class="emotional-emoji">🌹</span>
+            <div class="message-line">You make me want to be a better person. With you, I feel safe enough to be completely myself. Thank you for seeing me, for loving me, and for being my forever.</div>
+            <div class="message-line" style="margin-top:32px;"><span class="highlight" style="font-size:1.2em;">Today is your day to shine, to be celebrated, and to feel as special as you are.</span></div>
+            <div class="message-line">I'm so grateful for every moment we share. Happy Birthday, my love. <span class="highlight">I can't wait to celebrate this beautiful day with you.</span></div>
+            <span class="emotional-emoji">💕</span>
+        </div>
+        <div class="section-divider"></div>
+        <div class="timeline-container">
+            <h2 class="timeline-title">📖 Our Story</h2>
+            <div class="timeline" id="timelineContainer"></div>
+        </div>
+        <div class="section-divider"></div>
+        <div style="text-align:center; margin-top:30px;">
+            <button class="start-btn" onclick="showCelebrity()" style="margin-right:10px;">👯 Friends Messages</button>
+            <button class="start-btn" onclick="showSharing()" style="background:linear-gradient(135deg,#4ade80,#22c55e);">📤 Share This</button>
+        </div>
+        <button class="start-btn" style="margin-top:16px; width:auto;" onclick="goToCredits()">See Credits 🎬</button>
+        <button class="exit-btn" onclick="goBack()">← Exit Game</button>
+    </div>
+</div>
+
+<div id="creditsScreen" class="screen">
+    <div class="credits-content">
+        <div class="credits-title">🎬 THE END 🎬</div>
+        <div class="credits-section"><div class="credits-label">A Love Story</div><div class="credits-text">Directed by Your Heart</div></div>
+        <div class="credits-section"><div class="credits-label">Starring:</div><div class="credits-text" id="creditsStarring">You &amp; Me</div></div>
+        <div class="credits-section"><div class="credits-label">Original Score</div><div class="credits-text">The Sound of Your Laughter</div></div>
+        <div class="credits-section"><div class="credits-label">Special Thanks To</div><div class="credits-text">Every moment we've shared<br>Every laugh we've had<br>Every tkhnzira, every xofa bness 3in<br>Every promise kept</div></div>
+        <div class="credits-section"><div class="credits-label">Producer</div><div class="credits-text">My Endless Love For You</div></div>
+        <div class="credits-ending">💕 Forever Yours 💕</div>
+        <div class="credits-button-group">
+            <button class="credits-btn" onclick="replayGame()">🔄 Play Again</button>
+            <button class="credits-btn" onclick="goToEmotionalScreen()">💌 Back to Message</button>
+        </div>
+        <button class="exit-btn" onclick="goBack()">← Exit Game</button>
+    </div>
+</div>
+
+<div id="celebrityModal" class="celebrity-modal">
+    <div class="celebrity-content">
+        <h2 class="celebrity-title">👯 Friends Messages</h2>
+        <div id="celebrityMessages"></div>
+        <button class="celebrity-close" onclick="closeCelebrity()">Close</button>
+    </div>
+</div>
+
+<div id="sharingModal" class="sharing-modal">
+    <div class="sharing-content">
+        <h2 class="sharing-title">📤 Share This Experience</h2>
+        <div class="sharing-buttons">
+            <button class="share-btn" onclick="copyToClipboard()">📋 Copy Link</button>
+            <button class="share-btn" onclick="downloadPDF()">📥 Download</button>
+        </div>
+        <div style="margin-top:16px; padding:14px; background:#f0f0f0; border-radius:10px; text-align:left; color:#333;">
+            <p style="margin:0; font-weight:600; margin-bottom:8px;">Your link:</p>
+            <input type="text" id="shareLink" readonly style="width:100%; padding:8px; border:none; border-radius:5px; font-size:0.85rem;" />
+        </div>
+        <button class="close-sharing" onclick="closeSharing()">Close</button>
+    </div>
+</div>
+
+<div id="lightbox" class="lightbox">
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <div class="lightbox-emoji" id="lightboxEmoji">💕</div>
+        <div class="lightbox-text" id="lightboxText">A beautiful memory with you</div>
+    </div>
+</div>
+
+<button class="secret-button" onclick="toggleSecretMessage()" title="Secret 🤫">💝</button>
+<div id="secretModal" class="secret-modal">
+    <div class="secret-content">
+        <h2 class="secret-title">🤫 You found it!</h2>
+        <p class="secret-message">
+            This is my favorite secret about you, <strong id="wiamSecret">Wiam</strong>:<br><br>
+            <span style="font-size:1.05em; font-weight:500;">You make ordinary moments feel extraordinary.</span><br><br>
+            Even just sitting with you in silence feels like an adventure. Your energy, your presence, your essence... it's all so incredibly special to me.<br><br>
+            I love you more than words could ever express. 💕
+        </p>
+        <button class="secret-close-btn" onclick="toggleSecretMessage()">Close</button>
+    </div>
+</div>
+
+<script>
+const gameState = {
+    currentQuestion: 0,
+    score: 0,
+    totalQuestions: 10,
+    answered: false,
+    partnerName: 'Wiam',
+    yourName: 'Ayoub',
+    anniversaryDate: null,
+    unlockedBadges: [],
+    soundEnabled: true,
+    musicPlaying: false,
+    previousScreen: 'introScreen',
+    scrollCounter: 0
+};
+
+let backgroundAudio = null;
+
+function initBackgroundAudio() {
+    if (!backgroundAudio) {
+        backgroundAudio = new Audio('thewayyouare.mpeg');
+        backgroundAudio.loop = true;
+        backgroundAudio.volume = 0.4;
+    }
+}
+
+function startMusic() {
+    initBackgroundAudio();
+    backgroundAudio.play().catch(e => console.log('Audio play failed:', e));
+    gameState.musicPlaying = true;
+}
+
+function stopMusic() {
+    if (backgroundAudio) {
+        backgroundAudio.pause();
+        backgroundAudio.currentTime = 0;
+    }
+    gameState.musicPlaying = false;
+}
+
+function toggleMusic() {
+    const btn = document.getElementById('musicToggle');
+    const icon = document.getElementById('musicIcon');
+    if (gameState.musicPlaying) {
+        stopMusic();
+        icon.textContent = '🔇';
+        btn.classList.add('muted');
+    } else {
+        startMusic();
+        icon.textContent = '🎵';
+        btn.classList.remove('muted');
+    }
+}
+
+const questions = [
+    { text:"When did you first realize you loved me?", emoji:"💕", correctAnswer:0,
+      answers:["From the moment I saw you","Nhar 3tareft lik","Never, you annoy me","mora mabdaw l2icha3at"] },
+    { text:"What's your favorite memory with me?", emoji:"🥰", correctAnswer:0,
+      answers:["All of them, they're all perfect","Nhar 3tareft lik","laughing in biblio/buvette","holding hands for the first time"] },
+    { text:"How many times do I say 'kanbghik a wiam' per day?", emoji:"❤️", correctAnswer:2,
+      answers:["Too many, turn it down","Zero, I forget","Never enough times!","I stopped counting"] },
+    { text:"If we lived together, what's your favorite thing about our home?", emoji:"🍕", correctAnswer:3,
+      answers:["Our cozy movie nights","Your cooking (disaster)","My cooking (disaster)","fax han3dek 😊"] },
+    { text:"What's the longest we've gone without talking?", emoji:"📱", correctAnswer:1,
+      answers:["24 hours","About 10 minutes hit dak n3as","We've never stopped talking","A whole week"] },
+    { text:"How many times have you caught me staring at you?", emoji:"👀", correctAnswer:0,
+      answers:["More times than you realize","Never, I don't care","I stopped counting","ghir mraat 9lal"] },
+    { text:"tkhiyli galsin kamlin f buvette... wiam kanbghik", emoji:"🎵", correctAnswer:3,
+      answers:["hatjawbini tana kanbghik","mn sdma hatb9ay gha katxofi","la 7awla wala 9owata illa billah","t3tini bdher"] },
+    { text:"How would you describe our relationship?", emoji:"💑", correctAnswer:0,
+      answers:["Like a beautiful dream I never want to wake from","Complicated and messy","Temporary o dghia hatsali","tajriba 3la 9ad ma kayn"] },
+    { text:"What do you love most about me?", emoji:"⭐", correctAnswer:0,
+      answers:["Everything, I love all of you","Nothing, you're annoying","l3adalat dialk hhhhh","Your jokes (hamed)"] },
+    { text:"Will you be my Valentine for eternity?", emoji:"💍", correctAnswer:0,
+      answers:["Always and forever, yes!","Ask me when I'm awake","Let me think about it","Sure, why not"] }
+];
+
+function rnd(min, max) { return Math.floor(Math.random()*(max-min+1))+min; }
+
+function createFloatingHearts(containerId, count=15) {
+    const c = document.getElementById(containerId);
+    if (!c) return;
+    for (let i=0; i<count; i++) {
+        const h = document.createElement('div');
+        h.className = 'heart'; h.textContent = '💕';
+        h.style.left = Math.random()*window.innerWidth+'px';
+        h.style.top = Math.random()*window.innerHeight+'px';
+        h.style.fontSize = rnd(1,3)+'rem';
+        h.style.opacity = Math.random()*0.5+0.3;
+        h.style.animation = `heartFloat ${rnd(3,8)}s linear ${Math.random()*2}s infinite`;
+        c.appendChild(h);
+    }
+}
+
+function createSparkles(x, y, count=8) {
+    for (let i=0; i<count; i++) {
+        const s = document.createElement('div');
+        s.className='sparkle'; s.textContent='✨';
+        s.style.left=x+'px'; s.style.top=y+'px';
+        const angle=(Math.PI*2*i)/count, dist=120;
+        s.style.setProperty('--sx', Math.cos(angle)*dist+'px');
+        s.style.setProperty('--sy', Math.sin(angle)*dist+'px');
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 2000);
+    }
+}
+
+function createConfetti(x, y) {
+    const c=document.createElement('div'); c.className='heart-confetti'; c.textContent='❤️';
+    c.style.left=x+'px'; c.style.top=y+'px';
+    const vx=(Math.random()-0.5)*8, vy=(Math.random()-0.5)*8;
+    document.body.appendChild(c);
+    let px=x, py=y, op=1;
+    const go=()=>{ px+=vx; py+=vy; op-=0.02; c.style.transform=`translate(${px}px,${py}px)`; c.style.opacity=op; op>0 ? requestAnimationFrame(go) : c.remove(); };
+    go();
+}
+
+function createRosePetals(n=15) {
+    for(let i=0;i<n;i++) setTimeout(()=>{
+        const p=document.createElement('div'); p.className='rose-petal'; p.textContent='🌹';
+        p.style.left=Math.random()*window.innerWidth+'px'; p.style.top='-50px';
+        document.body.appendChild(p); setTimeout(()=>p.remove(),8000);
+    },i*120);
+}
+
+function playSound(type) {
+    if (!gameState.soundEnabled) return;
+    try {
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        const osc=ctx.createOscillator(), gain=ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        const freqs={start:523.25, correct:659.25, wrong:260};
+        osc.frequency.value=freqs[type]||440;
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.4);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime+0.4);
+    } catch(e){}
+}
+
+function unlockBadge(name) {
+    if (!gameState.unlockedBadges.includes(name)) gameState.unlockedBadges.push(name);
+}
+
+function switchScreen(id) {
+    const cur = document.querySelector('.screen.active');
+    if (cur) gameState.previousScreen = cur.id;
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const t = document.getElementById(id);
+    if (t) { t.classList.add('active'); window.scrollTo(0,0); }
+}
+function goBack() { switchScreen(gameState.previousScreen); }
+
+function onNameInput(val) {
+    const name = val.trim() || 'Wiam';
+    gameState.partnerName = name;
+    document.getElementById('introTitle').textContent = `Happy Birthday, ${name} ❤️`;
+}
+
+function startGame() {
+    const inp = document.getElementById('partnerNameInput').value.trim();
+    if (inp) gameState.partnerName = inp;
+
+    gameState.currentQuestion = 0;
+    gameState.score = 0;
+    gameState.unlockedBadges = [];
+
+    playSound('start');
+    startMusic();
+    createFloatingHearts('floatingHeartsQuestions', 18);
+    switchScreen('questionScreen');
+    loadQuestion(0);
+    updateScoreDisplay();
+}
+
+function loadQuestion(index) {
+    if (index >= questions.length) { startTransition(); return; }
+    gameState.currentQuestion = index;
+    gameState.answered = false;
+
+    const q = questions[index];
+    document.getElementById('currentQuestion').textContent = index+1;
+    document.getElementById('totalQuestions').textContent = questions.length;
+    document.getElementById('progressFill').style.width = ((index+1)/questions.length*100)+'%';
+    document.getElementById('questionEmoji').textContent = q.emoji;
+    document.getElementById('questionContent').textContent = q.text;
+
+    setFeedback('', '');
+
+    const container = document.getElementById('answersContainer');
+    container.innerHTML = '';
+    q.answers.forEach((ans, i) => {
+        const btn = document.createElement('button');
+        btn.className='answer-btn';
+        btn.textContent = ans;
+        btn.dataset.index = i;
+        btn.onclick = () => selectAnswer(btn, i, q.correctAnswer);
+        container.appendChild(btn);
+    });
+
+    document.getElementById('warningMessage').style.display='none';
+    document.getElementById('systemMessage').style.display='none';
+}
+
+function setFeedback(text, type) {
+    const el = document.getElementById('feedbackMessage');
+    el.textContent = text;
+    el.className = 'feedback-message' + (type ? ' '+type : '');
+}
+
+function selectAnswer(btn, selected, correct) {
+    if (gameState.answered) return;
+    gameState.answered = true;
+
+    if (selected === correct) {
+        btn.classList.add('correct');
+        gameState.score++;
+        updateScoreDisplay();
+        playSound('correct');
+        setFeedback('Correct! 🎉', 'correct-fb');
+        createSparkles(btn.getBoundingClientRect().left+80, btn.getBoundingClientRect().top+28, 10);
+        setTimeout(() => { setFeedback('',''); loadQuestion(gameState.currentQuestion+1); }, 1400);
+    } else {
+        teleportButton(btn);
+        playSound('wrong');
+        setFeedback('Try again... 💔', 'wrong-fb');
+        setTimeout(() => {
+            setFeedback('','');
+            gameState.answered = false;
+        }, 900);
+    }
+}
+
+function teleportButton(btn) {
+    btn.classList.add('wrong-flash');
+    const angle = Math.random()*Math.PI*2;
+    const dist = rnd(120, 250);
+    const tx = Math.cos(angle)*dist, ty = Math.sin(angle)*dist;
+
+    btn.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+    btn.style.transform = `translate(${tx}px, ${ty}px) rotate(${rnd(-30,30)}deg)`;
+    btn.style.opacity = '0.3';
+
+    setTimeout(() => {
+        btn.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease';
+        btn.style.transform = 'translate(0,0) rotate(0deg)';
+        btn.style.opacity = '1';
+        setTimeout(() => {
+            btn.classList.remove('wrong-flash');
+            btn.style.transition='';
+        }, 420);
+    }, 380);
+}
+
+function updateScoreDisplay() {
+    document.getElementById('scoreText').textContent = gameState.score;
+    document.getElementById('loveMeter').style.width = (gameState.score/gameState.totalQuestions*100)+'%';
+}
+
+function startTransition() {
+    const msgs = [
+        ["Calculating your love score... 💕", "This might take a moment of cuteness"],
+        ["Compiling all the memories... 🌹", "So many beautiful moments"],
+        ["Running love diagnostics... 💖", "Everything looks amazing"]
+    ];
+    const pick = msgs[rnd(0, msgs.length-1)];
+    document.getElementById('transitionTitle').textContent = pick[0];
+    document.getElementById('transitionSub').textContent = pick[1];
+
+    const bar = document.getElementById('transitionBar');
+    bar.style.animation = 'none';
+    bar.offsetHeight;
+    bar.style.animation = 'loadBarFill 2.4s ease-out forwards';
+
+    createSparkles(window.innerWidth/2, window.innerHeight/2, 16);
+    switchScreen('transitionScreen');
+
+    setTimeout(goToBadgesScreen, 2600);
+}
+
+function goToBadgesScreen() {
+    let msg='', emoji='❤️';
+    if (gameState.score===10) { msg='🎯 PERFECT SCORE! You truly know my heart! 💯'; emoji='💯'; createRosePetals(28); }
+    else if (gameState.score>=9) { msg='💕 Wow! You know me so well! Almost perfect!'; emoji='💕'; createRosePetals(16); }
+    else if (gameState.score>=7) { msg='😊 Great job! You understand my love!'; emoji='😊'; }
+    else if (gameState.score>=5) { msg='🥰 Good effort! I love you anyway!'; emoji='🥰'; }
+    else { msg='😂 Guess I need to remind you more often!'; emoji='😂'; }
+
+    document.getElementById('finalScore').textContent = gameState.score;
+    document.getElementById('scoreMessage').textContent = msg;
+    document.getElementById('finalScoreEmoji').textContent = emoji;
+    generateBadges();
+    switchScreen('badgesScreen');
+    createFloatingHearts('floatingHeartsBadges', 18);
+}
+
+function generateBadges() {
+    const defs = [
+        { name:'Perfect Match', emoji:'💯', desc:'Score 10/10!', ok:()=>gameState.score===10 },
+        { name:'True Love', emoji:'💕', desc:'Score 9+', ok:()=>gameState.score>=9 },
+        { name:'Loyal Heart', emoji:'❤️', desc:'Personalized', ok:()=>!!gameState.partnerName },
+        { name:'Romantic Soul', emoji:'🌹', desc:'Viewed all', ok:()=>true },
+        { name:'Love Detective', emoji:'🔍', desc:'Found secret', ok:()=>!!localStorage.getItem('secretFound') },
+        { name:'Music Lover', emoji:'🎵', desc:'Played music', ok:()=>gameState.musicPlaying||!!localStorage.getItem('musicPlayed') }
+    ];
+    const c = document.getElementById('badgesContainer'); c.innerHTML='';
+    defs.forEach(b=>{
+        const ok=b.ok(); if(ok) unlockBadge(b.name);
+        const el=document.createElement('div'); el.className='badge'+(ok?' unlocked':'');
+        el.innerHTML=`<span class="badge-emoji">${b.emoji}</span><div class="badge-name">${b.name}</div><div class="badge-description">${b.desc}</div>${!ok?'<span class="badge-lock">🔒</span>':''}`;
+        c.appendChild(el);
+    });
+}
+
+function goToEmotionalScreen() {
+    updatePersonalizedContent();
+    createFloatingHearts('floatingHeartsEmotional', 22);
+    createRosePetals(12);
+    switchScreen('emotionalScreen');
+    setTimeout(initTimelineObserver, 600);
+}
+
+function updatePersonalizedContent() {
+    const n = gameState.partnerName;
+    ['finalWiam','wiamSecret'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=n; });
+    const dc = document.getElementById('daysCounter');
+    if (dc) dc.textContent = gameState.anniversaryDate ? calculateDaysTogether() : 'Forever ∞';
+    generateTimeline();
+}
+
+function generateTimeline() {
+    const c = document.getElementById('timelineContainer'); c.innerHTML='';
+    const events = [
+        { title:'The Day We Met', desc: gameState.anniversaryDate ? `Started our forever on ${new Date(gameState.anniversaryDate).toLocaleDateString()}` : 'Where it all began...' },
+        { title:'First "I Love You"', desc:'The moment my heart knew it was you' },
+        { title:'The Little Moments', desc:'Coffee dates, late-night talks, silly jokes — everything with you' },
+        { title:'Through Thick & Thin', desc:'We faced challenges together and came out stronger' },
+        { title:`Today — ${gameState.partnerName}'s Birthday`, desc:`Celebrating you, ${gameState.partnerName}. You make every day special.` }
+    ];
+    events.forEach(e=>{
+        const el=document.createElement('div'); el.className='timeline-item';
+        el.innerHTML=`<div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-date">${e.title}</div><div class="timeline-text">${e.desc}</div></div>`;
+        c.appendChild(el);
+    });
+}
+
+function initTimelineObserver() {
+    const items = document.querySelectorAll('.timeline-item');
+    if (!items.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const idx = Array.from(items).indexOf(entry.target);
+                entry.target.style.transitionDelay = (idx * 0.12) + 's';
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    items.forEach(item => observer.observe(item));
+}
+
+function calculateDaysTogether() {
+    if (!gameState.anniversaryDate) return 'Forever ∞';
+    const diff = Math.abs(new Date() - new Date(gameState.anniversaryDate));
+    const days = Math.ceil(diff/(1000*60*60*24));
+    if (days===0) return 'Today!';
+    if (days<30) return `${days} days`;
+    if (days<365) return `${Math.floor(days/30)} months`;
+    return `${Math.floor(days/365)} years`;
+}
+
+function goToCredits() {
+    document.getElementById('creditsStarring').textContent = `${gameState.yourName} & ${gameState.partnerName}`;
+    switchScreen('creditsScreen');
+}
+
+function replayGame() {
+    gameState.currentQuestion=0; gameState.score=0; gameState.answered=false; gameState.unlockedBadges=[];
+    createFloatingHearts('floatingHeartsQuestions',18);
+    switchScreen('questionScreen');
+    loadQuestion(0);
+    updateScoreDisplay();
+}
+
+function showCelebrity() {
+    const celebs = [
+        { name:'👧 Nouhaila', msg:'waaaa kantkhne9😭😭 laykmel 3likom bikhiir, tfu 3lik a ayoub lmde3bel' },
+        { name:'👩 Khaoula', msg:'A7777 3likom jito ghzaliin' },
+        { name:'👩 Heba', msg:'heheehehehehehe samaka🔥' },
+        { name:'👨 Basit', msg:'tfu 3likom yarbi tfar9o, mahadix n7sdkom bax rbi mayzidkomx😲' },
+        { name:'👨 L3esri', msg:'haaaadik a ayoub, 3lax makat7mlinix a wiam' },
+        { name:'👧 Heba (sghira)', msg:'witek witek jito ghzaaliiin' },
+        { name:'👨 Zakaria', msg:'zakaria sent a reel 🎬' },
+        { name:'👧 Zineb', msg:'waaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
+        { name:'👩 Malak', msg:'feniiiin mbrouk 3likom' }
+    ];
+    const c=document.getElementById('celebrityMessages'); c.innerHTML='';
+    celebs.forEach(({name,msg})=>{
+        const el=document.createElement('div'); el.className='celebrity-item';
+        el.innerHTML=`<div class="celebrity-name">${name}</div><div>"${msg}"</div>`;
+        c.appendChild(el);
+    });
+    document.getElementById('celebrityModal').classList.add('active');
+    createSparkles(window.innerWidth/2, window.innerHeight/2, 18);
+}
+function closeCelebrity() { document.getElementById('celebrityModal').classList.remove('active'); }
+
+function showSharing() {
+    document.getElementById('shareLink').value = window.location.href;
+    document.getElementById('sharingModal').classList.add('active');
+}
+function closeSharing() { document.getElementById('sharingModal').classList.remove('active'); }
+
+function copyToClipboard() {
+    const el=document.getElementById('shareLink'); el.select(); document.execCommand('copy');
+    alert(`🎉 Link copied! Share it with ${gameState.partnerName}!`);
+}
+
+function downloadPDF() {
+    const content=`HAPPY BIRTHDAY, ${gameState.partnerName.toUpperCase()}!\nFrom: ${gameState.yourName}\nScore: ${gameState.score}/10\nBadges: ${gameState.unlockedBadges.length}\n\n💕 Forever Yours 💕`;
+    const a=document.createElement('a'); a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(content);
+    a.download=`Birthday_${gameState.partnerName}.txt`; a.click();
+}
+
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+
+function toggleSecretMessage() {
+    document.getElementById('secretModal').classList.toggle('active');
+    localStorage.setItem('secretFound','true');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    createFloatingHearts('floatingHeartsIntro', 18);
+
+    ['celebrityModal','sharingModal','secretModal'].forEach(id=>{
+        const m=document.getElementById(id);
+        m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('active'); });
+    });
+    document.getElementById('lightbox').addEventListener('click', e=>{
+        if(e.target===document.getElementById('lightbox')) closeLightbox();
+    });
+
+    let scrollTick=0;
+    window.addEventListener('scroll',()=>{ if(++scrollTick%3===0) createConfetti(Math.random()*window.innerWidth, window.scrollY+Math.random()*window.innerHeight*0.8); }, true);
+
+    document.addEventListener('keydown',e=>{
+        if(e.key==='Escape') { closeLightbox(); document.getElementById('secretModal').classList.remove('active'); closeCelebrity(); closeSharing(); }
+    });
+
+    let seq=[];
+    document.addEventListener('keydown',e=>{
+        seq.push(e.key.toLowerCase()); seq=seq.slice(-10);
+        if(seq.join('')==='hbibadiali') { toggleSecretMessage(); seq=[]; }
+    });
+
+    let lastClick=0;
+    document.addEventListener('click',e=>{
+        const now=Date.now();
+        if(now-lastClick<300 && e.target.textContent?.includes('💕')) { createConfetti(e.clientX,e.clientY); createSparkles(e.clientX,e.clientY,12); }
+        lastClick=now;
+    });
+});
+</script>
+</body>
+</html>
